@@ -5,10 +5,9 @@ Author: <PLACE NAME HERE>
 Modify only this file as part of your submission, as it will contain all of the logic
 necessary for implementing the A* pathfinder that solves the target practice problem.
 '''
-import queue
-from maze_problem import MazeProblem
+from queue import Queue
+from maze_problem import *
 from dataclasses import *
-from typing import *
 
 @dataclass
 class SearchTreeNode:
@@ -24,10 +23,12 @@ class SearchTreeNode:
         parent (Optional[SearchTreeNode]):
             The parent node from which this node was generated (or None if the root).
     """
-    player_loc: tuple[int, int]
+    player_loc: "tuple[int, int]"
     action: str
     parent: Optional["SearchTreeNode"]
-    # TODO: Add any other attributes and method overrides as necessary!
+    
+    def __str__(self) -> str:  # sourcery skip: use-fstring-for-concatenation
+        return "@: " + str(self.player_loc)
     
 def pathfind(problem: MazeProblem) -> Optional["list[str]"]:
     """
