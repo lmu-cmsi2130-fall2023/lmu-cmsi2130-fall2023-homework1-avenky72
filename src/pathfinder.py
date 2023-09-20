@@ -29,7 +29,7 @@ class SearchTreeNode:
     parent: Optional["SearchTreeNode"]
     # TODO: Add any other attributes and method overrides as necessary!
     
-def pathfind(problem: "MazeProblem") -> Optional[list[str]]:
+def pathfind(problem: MazeProblem) -> Optional["list[str]"]:
     """
     The main workhorse method of the package that performs A* graph search to find the optimal
     sequence of actions that takes the agent from its initial state and shoots all targets in
@@ -46,6 +46,37 @@ def pathfind(problem: "MazeProblem") -> Optional[list[str]]:
             initial state to the goal (a maze with all targets destroyed). If no such solution is
             possible, returns None.
     """
-    # TODO: Implement A* Graph Search for the Pathfinding Biathlon!
-    return None
 
+    # TODO: Implement breadth-first tree search!
+
+    
+    #initialize Queue
+
+    frontier : Queue[SearchTreeNode] = Queue()
+    
+    #first/initial node
+    initial = SearchTreeNode(player_loc = problem.get_initial_loc(), action = "", parent = None)
+
+    frontier.put(initial)
+    
+    #expand next node
+    while not frontier.empty():
+        
+        current: "SearchTreeNode" = frontier.get()
+
+        children = problem.get_transitions(current.player_loc)
+        
+        for action, next_loc in children.items():
+            child = SearchTreeNode(player_loc = next_loc, action = action, parent = current)
+            if child.player_loc == problem.get_goal_loc():
+                res: list[str]= []
+                while child.parent != None:
+                    res.insert(0, child.action)
+                    child = child.parent
+                return res
+            frontier.put(child)
+
+        
+        
+    return None
+            
