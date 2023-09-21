@@ -50,15 +50,17 @@ def pathfind(problem: MazeProblem) -> Optional["list[str]"]:
 
     # TODO: Implement breadth-first tree search!
 
+    #cost
+    cost = {initial.player_loc: 0}
     
     #initialize Queue
 
-    frontier : Queue[SearchTreeNode] = Queue()
+    frontier: PriorityQueue[SearchTreeNode] = PriorityQueue()
     
     #first/initial node
-    initial = SearchTreeNode(player_loc = problem.get_initial_loc(), action = "", parent = None)
+    initial = SearchTreeNode(player_loc=problem.get_initial_loc(), action="", parent=None)
 
-    frontier.put(initial)
+    frontier.put((initial_cost, initial))
     
     #expand next node
     while not frontier.empty():
@@ -66,14 +68,16 @@ def pathfind(problem: MazeProblem) -> Optional["list[str]"]:
         current: "SearchTreeNode" = frontier.get()
 
         children = problem.get_transitions(current.player_loc)
+        child = SearchTreeNode(player_loc = next_loc, action = action, parent = current)
+        
         
         for action, next_loc in children.items():
-            child = SearchTreeNode(player_loc = next_loc, action = action, parent = current)
+            
             if child.player_loc == problem.get_goal_loc():
                 res: list[str]= []
-                while child.parent != None:
-                    res.insert(0, child.action)
-                    child = child.parent
+                while current.parent != None:
+                    res.insert(0, current.action)
+                    current = current.parent
                 return res
             frontier.put(child)
 
