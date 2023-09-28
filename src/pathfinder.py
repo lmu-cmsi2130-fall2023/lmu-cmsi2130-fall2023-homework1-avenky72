@@ -1,13 +1,14 @@
 '''
 CMSI 2130 - Homework 1
-Author: <PLACE NAME HERE>
+Author: Atul
 
 Modify only this file as part of your submission, as it will contain all of the logic
 necessary for implementing the A* pathfinder that solves the target practice problem.
 '''
-from queue import Queue
-from maze_problem import *
+import queue
+from maze_problem import MazeProblem
 from dataclasses import *
+from typing import *
 
 @dataclass
 class SearchTreeNode:
@@ -26,9 +27,48 @@ class SearchTreeNode:
     player_loc: "tuple[int, int]"
     action: str
     parent: Optional["SearchTreeNode"]
+    cost: int
+    targets_left: set[tuple[int, int]]
+    h_cost: int
     
     def __str__(self) -> str:  # sourcery skip: use-fstring-for-concatenation
         return "@: " + str(self.player_loc)
+    # need a __hash__ and __lt___
+    
+    def __lt__ (self, other: "SearchTreeNode") -> bool:
+        #return the bool value of whether self.cost is less than other.cost; hcost + transition.cost()
+        return ((self.cost + self.h_cost) < (other.cost + other.h_cost))
+ 
+    def __hash__(self) -> int:
+        return hash((self.player_loc, frozenset(self.targets_left)))
+    
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, SearchTreeNode):
+            return False
+        return (self.player_loc == other.player_loc and self.targets_left == other.targets_left)
+    
+    
+def Manhattan_Distance(node_loc: tuple[int, int], targets_left: set[tuple[int, int]]) -> int:
+#create a loop or smt to go through all the targets and ind the one with the shortest distance
+    min_dist = float('inf')
+    for targets in targets_left:
+            min_d = abs(node_loc[0] - targets[0]) + abs(node_loc[1] - targets[1])
+            if min_d < min_dist:
+                min_dist = min_d
+    return int(min_dist) if not min_dist == float("inf") else 0
+            
+
+def return_solution(node: "SearchTreeNode") -> list["str"]:
+    res: list[str] = []
+    while node.parent is not None:
+        res.append(node.action)
+        node = node.parent;
+    res.reverse()
+    return res
+    
+    
+    
+    #Also need to find if targets visible to shoot
     
 def pathfind(problem: MazeProblem) -> Optional["list[str]"]:
     """
@@ -48,40 +88,37 @@ def pathfind(problem: MazeProblem) -> Optional["list[str]"]:
             possible, returns None.
     """
 
-    # TODO: Implement breadth-first tree search!
-
-    #cost
-    cost = {initial.player_loc: 0}
+    # TODO: Implement breadth-first tree search!   
     
     #initialize Queue
-
-    frontier: PriorityQueue[SearchTreeNode] = PriorityQueue()
+    frontier: queue.PriorityQueue["SearchTreeNode"] = queue.PriorityQueue()
     
     #first/initial node
-    initial = SearchTreeNode(player_loc=problem.get_initial_loc(), action="", parent=None)
+    initial = SearchTreeNode(problem.get_initial_loc(), "", None, 0, problem.get_initial_targets(), 0)
 
-    frontier.put((initial_cost, initial))
+
+    frontier.put(initial)
     
+    graveyard: set["SearchTreeNode"] = set()
+
     #expand next node
     while not frontier.empty():
-        
-        current: "SearchTreeNode" = frontier.get()
-
-        children = problem.get_transitions(current.player_loc)
-        child = SearchTreeNode(player_loc = next_loc, action = action, parent = current)
-        
-        
-        for action, next_loc in children.items():
-            
-            if child.player_loc == problem.get_goal_loc():
-                res: list[str]= []
-                while current.parent != None:
-                    res.insert(0, current.action)
-                    current = current.parent
-                return res
+        current = frontier.get()
+        if current in graveyard:
+            continue
+        graveyard.add(current)
+        children = problem.get_transitions(current.player_loc, current.targets_left)
+        if len(current.targets_left) == 0:
+            return return_solution(current)
+           
+        for action, transition in children.items():
+            curr_targets = current.targets_left - transition["targets_hit"]
+            newh_cost = Manhattan_Distance(transition["next_loc"], curr_targets)
+            new_cost = current.cost + transition["cost"]
+            child = SearchTreeNode(transition["next_loc"], action, current, new_cost, curr_targets, newh_cost)
+            if child in graveyard:
+                continue
             frontier.put(child)
-
-        
-        
+           
+    
     return None
-            
