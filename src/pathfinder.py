@@ -24,6 +24,7 @@ class SearchTreeNode:
         parent (Optional[SearchTreeNode]):
             The parent node from which this node was generated (or None if the root).
     """
+    # >> [MC] Don't forget docstrings for cost, targets_left, and h_cost!
     player_loc: "tuple[int, int]"
     action: str
     parent: Optional["SearchTreeNode"]
@@ -48,6 +49,8 @@ class SearchTreeNode:
         return (self.player_loc == other.player_loc and self.targets_left == other.targets_left)
     
     
+    # >> [MC] Leave just a single newline between the end of one method and the start of the next
+    # >> [MC] Provide proper docstrings for ALL methods, including helpers you write (-0.25)
 def Manhattan_Distance(node_loc: tuple[int, int], targets_left: set[tuple[int, int]]) -> int:
 #create a loop or smt to go through all the targets and ind the one with the shortest distance
     min_dist = float('inf')
@@ -110,6 +113,10 @@ def pathfind(problem: MazeProblem) -> Optional["list[str]"]:
         children = problem.get_transitions(current.player_loc, current.targets_left)
         if len(current.targets_left) == 0:
             return return_solution(current)
+        # >> [MC] Oh no! You're mingling tabs and spaces to indent below -- you should use ONLY
+        # spaces (or ONLY tabs, but we prefer spaces in this department due to their unified display
+        # across editors). Most IDEs can be configured to replace tabs with spaces, see me or a TA
+        # for help setting that up, but it *is* a big stylistic deal. (-1)
            
         for action, transition in children.items():
             curr_targets = current.targets_left - transition["targets_hit"]
@@ -122,3 +129,27 @@ def pathfind(problem: MazeProblem) -> Optional["list[str]"]:
            
     
     return None
+
+# ===================================================
+# >>> [MC] Summary
+# Excellent submission that has a ton to like and was
+# obviously well-tested. Good delegation of labor into
+# helper methods, generally clean style, and shows
+# strong command of programming foundations alongside
+# data structure and algorithmic concepts. Keep up
+# the great work!
+# ---------------------------------------------------
+# >>> [MC] Style Checklist
+# [X] = Good, [~] = Mixed bag, [ ] = Needs improvement
+#
+# [X] Variables and helper methods named and used well
+# [~] Proper and consistent indentation and spacing
+# [~] Proper docstrings provided for ALL methods
+# [X] Logic is adequately simplified
+# [X] Code repetition is kept to a minimum
+# ---------------------------------------------------
+# Correctness:          96 / 100 (-2 / missed unit test)
+# Mypy Penalty:        -0 (-2 if mypy wasn't clean)
+# Style Penalty:       -1.25
+# Total:                94.75 / 100
+# ===================================================
